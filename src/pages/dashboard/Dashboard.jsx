@@ -1,5 +1,5 @@
 import React from 'react';
-import { useQuery } from 'react-query';
+import { useQuery } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
 import PortfolioService from '../../api/portfolios';
 import SimulationService from '../../api/simulations';
@@ -14,7 +14,7 @@ const Dashboard = () => {
 
   // Fetch portfolios
   const { data: portfolios, isLoading: portfoliosLoading } = useQuery(
-    'portfolios',
+    ['portfolios'], // Note: This must be an array, not a string
     () => PortfolioService.getAllPortfolios(),
     {
       staleTime: 5 * 60 * 1000, // 5 minutes
@@ -23,7 +23,7 @@ const Dashboard = () => {
 
   // Fetch simulations
   const { data: simulations, isLoading: simulationsLoading } = useQuery(
-    'simulations',
+    ['simulations'], // Note: This must be an array, not a string
     () => SimulationService.getAllSimulations(),
     {
       staleTime: 5 * 60 * 1000, // 5 minutes

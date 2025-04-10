@@ -1,5 +1,5 @@
 import React from 'react';
-import { Routes, Route, Navigate } from 'react-router-dom';
+import { Routes, Route, Navigate, Outlet } from 'react-router-dom';
 import { useAuth } from './context/AuthContext';
 
 // Auth Pages
@@ -21,7 +21,7 @@ import NotFound from './pages/NotFound';
 import MainLayout from './components/common/MainLayout';
 
 // Private Route component
-const PrivateRoute = ({ children }) => {
+const PrivateRoute = () => {
   const { isAuthenticated, loading } = useAuth();
 
   // Show loading state if still checking authentication
@@ -30,12 +30,7 @@ const PrivateRoute = ({ children }) => {
   }
 
   // Redirect to login if not authenticated
-  if (!isAuthenticated) {
-    return <Navigate to="/login" />;
-  }
-
-  // Render the protected component
-  return children;
+  return isAuthenticated ? <Outlet /> : <Navigate to="/login" />;
 };
 
 const AppRoutes = () => {
@@ -46,27 +41,25 @@ const AppRoutes = () => {
       <Route path="/signup" element={<Signup />} />
 
       {/* Private routes */}
-      <Route path="/" element={
-        <PrivateRoute>
-          <MainLayout />
-        </PrivateRoute>
-      }>
-        <Route index element={<Navigate to="/dashboard" replace />} />
-        <Route path="dashboard" element={<Dashboard />} />
+      <Route element={<PrivateRoute />}>
+        <Route element={<MainLayout />}>
+          <Route index element={<Navigate to="/dashboard" replace />} />
+          <Route path="dashboard" element={<Dashboard />} />
 
-        {/* Portfolio routes */}
-        <Route path="portfolios" element={<PortfolioList />} />
-        <Route path="portfolios/new" element={<PortfolioForm />} />
-        <Route path="portfolios/:id" element={<PortfolioDetail />} />
-        <Route path="portfolios/:id/edit" element={<PortfolioForm />} />
+          {/* Portfolio routes */}
+          <Route path="portfolios" element={<PortfolioList />} />
+          <Route path="portfolios/new" element={<PortfolioForm />} />
+          <Route path="portfolios/:id" element={<PortfolioDetail />} />
+          <Route path="portfolios/:id/edit" element={<PortfolioForm />} />
 
-        {/* Simulation routes */}
-        <Route path="simulations" element={<SimulationList />} />
-        <Route path="simulations/new" element={<SimulationForm />} />
-        <Route path="simulations/:id" element={<SimulationDetail />} />
+          {/* Simulation routes */}
+          <Route path="simulations" element={<SimulationList />} />
+          <Route path="simulations/new" element={<SimulationForm />} />
+          <Route path="simulations/:id" element={<SimulationDetail />} />
 
-        {/* User profile */}
-        <Route path="profile" element={<UserProfile />} />
+          {/* User profile */}
+          <Route path="profile" element={<UserProfile />} />
+        </Route>
       </Route>
 
       {/* 404 route */}

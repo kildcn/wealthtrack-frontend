@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { useQuery, useMutation, useQueryClient } from 'react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'react-toastify';
 import PortfolioService from '../../api/portfolios';
 import InvestmentTable from '../../components/portfolios/InvestmentTable';
@@ -13,7 +13,7 @@ const PortfolioDetail = () => {
 
   // Fetch portfolio with investments
   const { data: portfolio, isLoading, error } = useQuery(
-    ['portfolio', id],
+    ['portfolio', id], // Also include parameters as part of the array
     () => PortfolioService.getPortfolioWithInvestments(id),
     {
       staleTime: 2 * 60 * 1000, // 2 minutes

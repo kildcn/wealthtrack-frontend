@@ -1,3 +1,4 @@
+// src/api/auth.js
 import api from './index';
 
 const AuthService = {
@@ -12,12 +13,17 @@ const AuthService = {
     const response = await api.post('/auth/signin', credentials);
     const { accessToken, refreshToken, ...userData } = response.data;
 
-    // Store tokens in localStorage
-    localStorage.setItem('access_token', accessToken);
-    localStorage.setItem('refresh_token', refreshToken);
-    localStorage.setItem('user_data', JSON.stringify(userData));
-
-    return userData;
+    // Only store tokens if they exist in the response
+    if (accessToken && refreshToken) {
+      // Store tokens in localStorage
+      localStorage.setItem('access_token', accessToken);
+      localStorage.setItem('refresh_token', refreshToken);
+      localStorage.setItem('user_data', JSON.stringify(userData));
+      return userData;
+    } else {
+      // This will throw an error if tokens aren't present
+      throw new Error('Invalid authentication response');
+    }
   },
 
   // Refresh access token

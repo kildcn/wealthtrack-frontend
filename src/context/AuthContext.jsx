@@ -5,7 +5,7 @@ import UserService from '../api/user';
 import { toast } from 'react-toastify';
 
 // Create the auth context
-const AuthContext = createContext();
+const AuthContext = createContext(null);
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
@@ -17,8 +17,20 @@ export const AuthProvider = ({ children }) => {
     const loadUserData = async () => {
       try {
         if (AuthService.isAuthenticated()) {
-          const userData = await UserService.getCurrentUser();
-          setUser(userData);
+          // First try to get from localStorage for quicker loading
+          const storedUser = AuthService.getUserData();
+          if (storedUser) {
+            setUser(storedUser);
+          }
+
+          // Then fetch fresh data from API
+          try {
+            const userData = await UserService.getCurrentUser();
+            setUser(userData);
+          } catch (apiError) {
+            console.error('Failed to load fresh user data:', apiError);
+            // Keep using stored user data if API fails
+          }
         }
       } catch (error) {
         console.error('Failed to load user data:', error);
@@ -37,12 +49,25 @@ export const AuthProvider = ({ children }) => {
     try {
       setLoading(true);
       const userData = await AuthService.login(credentials);
+
+      // Additional validation - ensure we have user data
+      if (!userData || !userData.id) {
+        throw new Error('Invalid user data received');
+      }
+
       setUser(userData);
       toast.success('Login successful!');
       navigate('/dashboard');
       return true;
     } catch (error) {
-      const message = error.response?.data?.message || 'Login failed';
+      // Clear any potentially stored invalid data
+      AuthService.logout();
+      setUser(null);
+
+      // Show appropriate error message
+      const message = error.response?.data?.message ||
+                     error.message ||
+                     'Invalid credentials or server error';
       toast.error(message);
       return false;
     } finally {

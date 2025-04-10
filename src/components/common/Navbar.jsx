@@ -1,3 +1,4 @@
+// src/components/common/Navbar.jsx
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
@@ -9,6 +10,13 @@ const Navbar = ({ toggleSidebar }) => {
   const toggleDropdown = () => {
     setDropdownOpen(!dropdownOpen);
   };
+
+  // Safely get initials, handling the case where firstName or lastName might be undefined
+  const getInitials = () => {
+    const firstInitial = user?.firstName ? user.firstName.charAt(0) : '';
+    const lastInitial = user?.lastName ? user.lastName.charAt(0) : '';
+    return (firstInitial + lastInitial) || 'U';  // Default to 'U' for User if no initials are available
+  }
 
   return (
     <nav className="bg-white border-b border-gray-200 fixed z-30 w-full">
@@ -41,15 +49,15 @@ const Navbar = ({ toggleSidebar }) => {
               >
                 <span className="sr-only">Open user menu</span>
                 <div className="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center text-white font-semibold">
-                  {user?.firstName.charAt(0)}{user?.lastName.charAt(0)}
+                  {getInitials()}
                 </div>
               </button>
               {/* Dropdown menu */}
               {dropdownOpen && (
                 <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50">
                   <div className="px-4 py-2 text-sm text-gray-700 border-b border-gray-200">
-                    <div className="font-medium">{user?.firstName} {user?.lastName}</div>
-                    <div className="text-gray-500 truncate">{user?.email}</div>
+                    <div className="font-medium">{user ? `${user.firstName || ''} ${user.lastName || ''}` : 'User'}</div>
+                    <div className="text-gray-500 truncate">{user?.email || ''}</div>
                   </div>
                   <Link
                     to="/profile"

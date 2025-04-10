@@ -1,3 +1,4 @@
+// src/pages/auth/Signup.jsx
 import React, { useState } from 'react';
 import { Link, Navigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
@@ -11,10 +12,14 @@ const Signup = () => {
   const password = watch('password', '');
 
   const onSubmit = async (data) => {
+    console.log('Signup form submitted with data:', { ...data, password: '[REDACTED]' });
     setError('');
     try {
-      await signup(data);
+      const result = await signup(data);
+      console.log('Signup result:', result);
+      // Navigation is handled in the AuthContext
     } catch (err) {
+      console.error('Signup error:', err);
       setError(err.response?.data?.message || 'Failed to create account');
     }
   };

@@ -1,6 +1,6 @@
 import React from 'react';
 import { BrowserRouter as Router } from 'react-router-dom';
-import { QueryClient, QueryClientProvider } from 'react-query';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ToastContainer } from 'react-toastify';
 import { AuthProvider } from './context/AuthContext';
 import AppRoutes from './Routes';
@@ -19,16 +19,16 @@ const queryClient = new QueryClient({
 
 function App() {
   return (
-    <Router>
-      <QueryClientProvider client={queryClient}>
+    <QueryClientProvider client={queryClient}>
+      <Router>
         <AuthProvider>
           <div className="app-container">
             <AppRoutes />
             <ToastContainer position="top-right" autoClose={5000} />
           </div>
         </AuthProvider>
-      </QueryClientProvider>
-    </Router>
+      </Router>
+    </QueryClientProvider>
   );
 }
 

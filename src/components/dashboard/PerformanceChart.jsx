@@ -1,3 +1,4 @@
+// src/components/dashboard/PerformanceChart.jsx
 import React from 'react';
 import {
   LineChart,
@@ -11,7 +12,6 @@ import {
 } from 'recharts';
 
 // This is a simulated chart since we don't have historical data
-// In a real app, you would use the actual historical performance data
 const PerformanceChart = ({ portfolios }) => {
   // Generate mock data for chart display
   const generateMockData = () => {
@@ -36,20 +36,22 @@ const PerformanceChart = ({ portfolios }) => {
         name: month,
       };
 
-      // Add data for each portfolio (randomly fluctuating around current value)
-      portfolios.forEach((portfolio, index) => {
-        const totalValue = portfolio.investments?.reduce(
-          (sum, investment) => sum + investment.quantity * investment.asset.currentPrice,
-          0
-        ) || 0;
+      // Make sure portfolios is defined before using forEach
+      if (Array.isArray(portfolios)) {
+        portfolios.forEach((portfolio, index) => {
+          const totalValue = portfolio.investments?.reduce(
+            (sum, investment) => sum + investment.quantity * investment.asset.currentPrice,
+            0
+          ) || 0;
 
-        // Create a random fluctuation pattern that generally trends upward
-        const baseValue = totalValue * 0.7; // Start at 70% of current value
-        const growthFactor = 1 + (0.3 * (i / 11)); // Grows to current value
-        const randomness = 0.9 + (Math.random() * 0.2); // +/- 10% randomness
+          // Create a random fluctuation pattern that generally trends upward
+          const baseValue = totalValue * 0.7; // Start at 70% of current value
+          const growthFactor = 1 + (0.3 * (i / 11)); // Grows to current value
+          const randomness = 0.9 + (Math.random() * 0.2); // +/- 10% randomness
 
-        dataPoint[portfolio.name] = (baseValue * growthFactor * randomness).toFixed(2);
-      });
+          dataPoint[portfolio.name] = (baseValue * growthFactor * randomness).toFixed(2);
+        });
+      }
 
       data.push(dataPoint);
     }
@@ -74,6 +76,15 @@ const PerformanceChart = ({ portfolios }) => {
     return colors[index % colors.length];
   };
 
+  // If no portfolios or empty array, show empty state
+  if (!Array.isArray(portfolios) || portfolios.length === 0) {
+    return (
+      <div className="flex justify-center items-center h-64 text-gray-500">
+        <p>No portfolio data available</p>
+      </div>
+    );
+  }
+
   return (
     <ResponsiveContainer width="100%" height={300}>
       <LineChart
@@ -90,7 +101,7 @@ const PerformanceChart = ({ portfolios }) => {
         <YAxis />
         <Tooltip formatter={(value) => ['$' + Number(value).toLocaleString(), 'Value']} />
         <Legend />
-        {portfolios.map((portfolio, index) => (
+        {Array.isArray(portfolios) && portfolios.map((portfolio, index) => (
           <Line
             key={portfolio.id}
             type="monotone"

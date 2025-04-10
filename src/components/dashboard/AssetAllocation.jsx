@@ -1,3 +1,4 @@
+// src/components/dashboard/AssetAllocation.jsx
 import React from 'react';
 import {
   PieChart,
@@ -12,6 +13,11 @@ const AssetAllocation = ({ portfolios }) => {
   // Calculate asset allocation across all portfolios
   const calculateAssetAllocation = () => {
     const assetTypeMap = {};
+
+    // Make sure portfolios is an array before using forEach
+    if (!Array.isArray(portfolios)) {
+      return [];
+    }
 
     // Gather all investments from all portfolios
     portfolios.forEach(portfolio => {
@@ -43,6 +49,8 @@ const AssetAllocation = ({ portfolios }) => {
 
   // Format asset type name for display
   const formatAssetType = (type) => {
+    if (!type) return "Unknown";
+
     return type
       .split('_')
       .map(word => word.charAt(0) + word.slice(1).toLowerCase())
@@ -64,54 +72,55 @@ const AssetAllocation = ({ portfolios }) => {
   // Calculate total value
   const totalValue = data.reduce((sum, item) => sum + item.value, 0);
 
+  // If no data or empty array, show empty state
+  if (!Array.isArray(portfolios) || portfolios.length === 0 || data.length === 0) {
+    return (
+      <div className="flex justify-center items-center h-64 text-gray-500">
+        <p>No asset data available</p>
+      </div>
+    );
+  }
+
   return (
     <div className="flex flex-col h-64">
-      {data.length === 0 ? (
-        <div className="flex justify-center items-center h-full text-gray-500">
-          <p>No asset data available</p>
-        </div>
-      ) : (
-        <>
-          <ResponsiveContainer width="100%" height="70%">
-            <PieChart>
-              <Pie
-                data={data}
-                cx="50%"
-                cy="50%"
-                outerRadius={80}
-                fill="#8884d8"
-                dataKey="value"
-                nameKey="name"
-                label={({ name, percent }) => `${formatAssetType(name)} ${(percent * 100).toFixed(0)}%`}
-                labelLine={false}
-              >
-                {data.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                ))}
-              </Pie>
-              <Tooltip
-                formatter={(value) => ['$' + value.toLocaleString(), 'Value']}
-                labelFormatter={(label) => formatAssetType(label)}
-              />
-            </PieChart>
-          </ResponsiveContainer>
-
-          <div className="grid grid-cols-2 mt-2 gap-2">
-            {data.slice(0, 4).map((item, index) => (
-              <div key={item.name} className="flex items-center text-sm">
-                <div
-                  className="w-3 h-3 rounded-full mr-2"
-                  style={{ backgroundColor: COLORS[index % COLORS.length] }}
-                ></div>
-                <div className="mr-1">{formatAssetType(item.name)}:</div>
-                <div className="font-semibold">
-                  {((item.value / totalValue) * 100).toFixed(1)}%
-                </div>
-              </div>
+      <ResponsiveContainer width="100%" height="70%">
+        <PieChart>
+          <Pie
+            data={data}
+            cx="50%"
+            cy="50%"
+            outerRadius={80}
+            fill="#8884d8"
+            dataKey="value"
+            nameKey="name"
+            label={({ name, percent }) => `${formatAssetType(name)} ${(percent * 100).toFixed(0)}%`}
+            labelLine={false}
+          >
+            {data.map((entry, index) => (
+              <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
             ))}
+          </Pie>
+          <Tooltip
+            formatter={(value) => ['$' + value.toLocaleString(), 'Value']}
+            labelFormatter={(label) => formatAssetType(label)}
+          />
+        </PieChart>
+      </ResponsiveContainer>
+
+      <div className="grid grid-cols-2 mt-2 gap-2">
+        {data.slice(0, 4).map((item, index) => (
+          <div key={item.name} className="flex items-center text-sm">
+            <div
+              className="w-3 h-3 rounded-full mr-2"
+              style={{ backgroundColor: COLORS[index % COLORS.length] }}
+            ></div>
+            <div className="mr-1">{formatAssetType(item.name)}:</div>
+            <div className="font-semibold">
+              {((item.value / totalValue) * 100).toFixed(1)}%
+            </div>
           </div>
-        </>
-      )}
+        ))}
+      </div>
     </div>
   );
 };

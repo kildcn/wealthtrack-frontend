@@ -2,7 +2,7 @@ import axios from 'axios';
 
 // Create axios instance with default config
 const api = axios.create({
-  baseURL: '/api',
+  baseURL: 'http://localhost:8080/api',
   headers: {
     'Content-Type': 'application/json',
   },
@@ -31,7 +31,7 @@ api.interceptors.response.use(
     const originalRequest = error.config;
 
     // If error is 401 Unauthorized and we haven't tried to refresh yet
-    if (error.response.status === 401 && !originalRequest._retry) {
+    if (error.response?.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true;
 
       try {
@@ -40,6 +40,8 @@ api.interceptors.response.use(
         if (!refreshToken) {
           // No refresh token, so logout
           localStorage.removeItem('access_token');
+          localStorage.removeItem('refresh_token');
+          localStorage.removeItem('user_data');
           window.location.href = '/login';
           return Promise.reject(error);
         }
@@ -48,6 +50,10 @@ api.interceptors.response.use(
         const response = await axios.post('/api/auth/refresh-token', {
           refreshToken
         });
+
+        if (!response.data.accessToken || !response.data.refreshToken) {
+          throw new Error('Invalid refresh token response');
+        }
 
         const { accessToken, refreshToken: newRefreshToken } = response.data;
 
@@ -62,6 +68,7 @@ api.interceptors.response.use(
         // Failed to refresh token, logout
         localStorage.removeItem('access_token');
         localStorage.removeItem('refresh_token');
+        localStorage.removeItem('user_data');
         window.location.href = '/login';
         return Promise.reject(refreshError);
       }

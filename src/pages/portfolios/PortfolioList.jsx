@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useQuery } from 'react-query';
+import { useQuery } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
 import PortfolioService from '../../api/portfolios';
 
@@ -8,7 +8,7 @@ const PortfolioList = () => {
 
   // Fetch all portfolios
   const { data: portfolios, isLoading, error, refetch } = useQuery(
-    'portfolios',
+    ['portfolios'],
     () => PortfolioService.getAllPortfolios(),
     {
       staleTime: 5 * 60 * 1000, // 5 minutes
